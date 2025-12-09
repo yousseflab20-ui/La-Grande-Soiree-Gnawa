@@ -1,0 +1,15 @@
+{
+  "name": "la-grande-soiree-gnawa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "mobile": "pnpm --filter frontend start",
+    "backend": "pnpm --filter backend start",
+    "android": "pnpm --filter frontend start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
