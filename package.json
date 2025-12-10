@@ -7,7 +7,7 @@
   "scripts": {
     "mobile": "pnpm --filter frontend start",
     "backend": "pnpm --filter backend start",
-    "android": "pnpm --filter frontend start"
+    "android": "pnpm --filter frontend android"
   },
   "keywords": [],
   "author": "",
