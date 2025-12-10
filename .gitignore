@@ -83,3 +83,4 @@ node_modules/
 # Builds
 android/app/build/
 ios/build/
+.env
