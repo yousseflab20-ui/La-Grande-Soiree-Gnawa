@@ -1,28 +1,32 @@
-import { DataTypes, Sequelize } from "sequelize"
+import { DataTypes } from "sequelize"
 import db from "../config/db.js"
 
-const booking = db.define("Booking",{
-    id:{
-        type:DataTypes.NUMBER,
-        primaryKey:true,
-        autoIncrement:true
+const booking = db.define("Booking", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    Coode:{
-        type:DataTypes.STRING,
-        unique:true,
-        allowNull:false
+    Coode: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
     },
-    customerName:{
-        type:DataTypes.TEXT,
-        allowNull:false
+    customerName: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    customerEmail:{
-        type:DataTypes.INTEGER,
-        allowNull:false
+    customerEmail: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    artistId:{
-        type:DataTypes.INTEGER,
-        allowNull:false
+    artistId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
-})
+}
+    , {
+        tableName: "Booking",
+        timestamps: true
+    })
 export default booking;

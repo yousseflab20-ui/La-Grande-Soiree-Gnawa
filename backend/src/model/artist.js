@@ -1,7 +1,7 @@
 import {DataTypes} from "sequelize"
-import db from "../config/db"
+import db from "../config/db.js"
 
-const User = db.define("artists ",{
+const atrist = db.define("Artists",{
     id :{
         type:DataTypes.INTEGER,
         autoIncrement:true,
@@ -11,18 +11,16 @@ const User = db.define("artists ",{
         type:DataTypes.STRING,
         allowNull:false
     },
-    email:{
+    photo:{
         type:DataTypes.STRING,
         allowNull:false,
-        unique:true
     },
-    paassword:{
-        type:DataTypes.STRING,
-        allowNull:false
+    description:{
+        type:DataTypes.TEXT
     }
 },{
-    tableName:"artists",
+    tableName:"Artists",
     timestamps:true
 }
 )
-export default artists;
+export default atrist;
