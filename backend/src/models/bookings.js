@@ -1,6 +1,6 @@
-import { DataTypes } from "sequelize"
-import db from "../config/db.js"
-import artist from "./artist.js"
+import { DataTypes } from "sequelize";
+import db from "../config/db.js";
+import artist from "./artist.js";
 
 const booking = db.define("Booking", {
     id: {
@@ -25,10 +25,11 @@ const booking = db.define("Booking", {
         type: DataTypes.INTEGER,
         allowNull: false
     }
-}
-    , {
-        tableName: "bookings",
-        timestamps: true
-    })
+}, {
+    tableName: "bookings",
+    timestamps: true
+});
+
 booking.belongsTo(artist, { foreignKey: "artistId" });
+
 export default booking;

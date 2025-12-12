@@ -68,7 +68,6 @@ export const createBooking = async (req, res) => {
             artistId: artist_id
         });
 
-        // Return booking with artist info
         const bookingWithArtist = await booking.findByPk(Booking.id, {
             include: {
                 model: artist,
