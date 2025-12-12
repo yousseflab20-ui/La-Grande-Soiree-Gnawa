@@ -59,6 +59,14 @@ export const createBooking = async (req, res) => {
             return res.status(404).json({ error: "Artist not found" });
         }
 
+        const existingBooking = await booking.findOne({
+            where: { customerEmail: customer_email }
+        });
+
+        if (existingBooking) {
+            return res.status(400).json({ error: "This email has already booked." });
+        }
+
         const code = makeCode();
 
         const Booking = await booking.create({

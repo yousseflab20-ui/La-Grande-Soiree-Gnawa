@@ -18,8 +18,8 @@ app.use(express.json());
 
 syncDatabase();
 
-app.use("/api/EventInfo", eventRoutes);
-app.use("/api/Artist", artistRoutes);
+app.use("/api/eventinfo", eventRoutes);
+app.use("/api/artist", artistRoutes);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/artists", adminArtistsRoutes);
