@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize"
+import { DataTypes } from "sequelize"
 import db from "../config/db.js"
 import artist from "./artist.js"
 
@@ -27,8 +27,8 @@ const booking = db.define("Booking", {
     }
 }
     , {
-        tableName: "Booking",
+        tableName: "bookings",
         timestamps: true
     })
-booking.belongsTo(artist, { foreignKey: "artist_id" });
+booking.belongsTo(artist, { foreignKey: "artistId" });
 export default booking;
