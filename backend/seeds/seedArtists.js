@@ -33,7 +33,11 @@ async function seedArtists() {
                 name: "Hassan Hakmoun",
                 photo: "https://upload.wikimedia.org/wikipedia/commons/??/?.jpg or use image from turn2image10",
                 description: "Moroccan musician specializing in Gnawa music, noted for fusion and world music collaborations."
-            }
+            },{
+                name: "Mahmoud Guinia",
+                photo: "https://i.ytimg.com/vi/kjDZYqcSIB0/hqdefault.jpg",
+                description: "Legendary Gnawa master from Essaouira and hugely influential figure in the tradition."
+            },
         ]
         );
 

@@ -1,9 +1,13 @@
-import { Text, View } from "react-native";
+import { Button, Text, TouchableOpacity, View } from "react-native";
 
-export default function ArtistDetailScreen() {
+export default function ArtistDetailScreen({ navigation }: any) {
     return (
-        <View>
-            <Text>Hello</Text>
-        </View>
+        <TouchableOpacity
+            onPress={() => {
+                navigation.navigate('SomeScreen');
+            }}
+        >
+            Go somewhere
+        </TouchableOpacity>
     )
 }
