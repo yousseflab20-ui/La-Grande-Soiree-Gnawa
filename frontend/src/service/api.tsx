@@ -2,6 +2,7 @@ import axios from "axios";
 import { API_URL } from "../constants/Url";
 
 export const fetchEventInfo = async () => {
+    console.log("📡 Calling:", `${API_URL}/eventinfo`);
     const res = await axios.get(`${API_URL}/eventinfo`);
     return res.data;
 };
@@ -13,7 +14,7 @@ export const fetchArtists = async () => {
 };
 
 export const fetchArtistDetail = async (id: string) => {
-    const res = await axios.get(`${API_URL}/artists/${id}`);
+    const res = await axios.get(`${API_URL}/artist/${id}`);
     return res.data;
 };
 

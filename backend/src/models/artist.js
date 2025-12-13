@@ -12,7 +12,7 @@ const artist = db.define("Artists", {
         allowNull: false
     },
     photo: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     },
     description: {
