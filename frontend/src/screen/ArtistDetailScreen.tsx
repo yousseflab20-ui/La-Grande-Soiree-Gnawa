@@ -68,7 +68,11 @@ export default function ArtistDetailScreen({ route, navigation }: any) {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.bookButton}>
+                <TouchableOpacity style={styles.bookButton} onPress={() =>
+                    navigation.navigate("Booking", {
+                        eventId: 1, // ⚠️ مؤقت، بدلو بالـ event الحقيقي
+                    })
+                }>
                     <Text style={styles.bookButtonText}>Book Tickets</Text>
                 </TouchableOpacity>
             </View>

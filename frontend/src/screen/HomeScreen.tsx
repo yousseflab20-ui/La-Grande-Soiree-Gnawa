@@ -9,6 +9,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { fetchEventInfo } from "../service/api";
 import { COLORS } from "../constants/Url";
+import { createBooking } from "../service/api";
 
 export default function HomeScreen({ navigation }: any) {
   const { data, isLoading, error } = useQuery({
@@ -53,7 +54,7 @@ export default function HomeScreen({ navigation }: any) {
 
       <TouchableOpacity
         style={styles.secondaryCTA}
-        onPress={() => navigation.navigate("MyBookings")}
+        onPress={createBooking}
         activeOpacity={0.8}
       >
         <Text style={styles.secondaryCTAText}>Mes réservations</Text>
