@@ -5,8 +5,6 @@ import {
     FlatList,
     StyleSheet,
     TouchableOpacity,
-    SafeAreaView,
-    ScrollView,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllBookings, fetchArtists } from "../service/api";
@@ -15,13 +13,13 @@ interface Booking {
     id?: number;
     code?: string;
     artistId?: number;
-    artist_id?: number; // Support both formats
+    artist_id?: number;
     customerEmail?: string;
-    customer_email?: string; // Support both formats
+    customer_email?: string;
     customerName?: string;
-    customer_name?: string; // Support both formats
+    customer_name?: string;
     createdAt?: string;
-    created_at?: string; // Support both formats
+    created_at?: string;
     name?: string;
     description?: string;
     photo?: string;
@@ -44,14 +42,12 @@ export default function MyBookings({ navigation }: any) {
         queryFn: fetchArtists,
     });
 
-    // Handle different response structures
     const bookings = Array.isArray(bookingsResponse)
         ? bookingsResponse
         : bookingsResponse?.data ?? [];
 
     const artists: Artist[] = artistsResponse?.data ?? [];
 
-    // Debug: Log the data
     React.useEffect(() => {
         console.log("Raw bookings response:", bookingsResponse);
         console.log("Processed bookings:", bookings);
@@ -86,12 +82,10 @@ export default function MyBookings({ navigation }: any) {
         }
     };
 
-    // Helper function to get value supporting both camelCase and snake_case
     const getBookingValue = (item: Booking, camelKey: string, snakeKey: string) => {
         return (item as any)[camelKey] || (item as any)[snakeKey];
     };
 
-    // Debug booking codes
     React.useEffect(() => {
         if (bookings && bookings.length > 0) {
             console.log("🎫 Checking booking codes:");
