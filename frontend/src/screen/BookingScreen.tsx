@@ -1,113 +1,341 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
-import handleBooking from "../service/handleBooking";
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    Alert,
+} from "react-native";
 import { createBooking } from "../service/api";
-export default function BookingScreen({ route, navigation }: any) {
-    const eventId = route?.params?.eventId;
 
+export default function BookingScreen({ navigation, route }: any) {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [seats, setSeats] = useState("1");
+    const [artistId, setArtistId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const eventData = route?.params?.event || {
+        name: "La Grande Soirée Gnawa",
+        date: "Oct 24 - 8:00 PM",
+        location: "Agadir, Marrakech",
+        price: 150,
+    };
+
+    const validateEmail = (emailToCheck: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(emailToCheck);
+    };
+
     const handleBooking = async () => {
-        // validation
-        if (!email.trim()) {
-            return Alert.alert("Error", "Please enter your email");
-        }
-
-        if (!eventId) {
-            return Alert.alert("Error", "Event ID missing!");
-        }
-
-        if (parseInt(seats) <= 0) {
-            return Alert.alert("Error", "Number of seats must be at least 1");
-        }
+        if (!name.trim()) return Alert.alert("Error", "Please enter your full name");
+        if (!email.trim()) return Alert.alert("Error", "Please enter your email");
+        if (!validateEmail(email.trim())) return Alert.alert("Error", "Please enter a valid email");
+        if (!artistId) return Alert.alert("Error", "Please select an artist");
 
         const bookingData = {
+            customer_name: name.trim(),
             customer_email: email.trim(),
-            customer_name: "youssef", // دابا ثابتة، من بعد دير input
-            artist_id: Number(eventId),
+            artist_id: artistId,
         };
 
-        console.log("Sending booking data:", bookingData);
+        console.log("📤 Sending booking:", bookingData);
 
         setIsLoading(true);
         try {
-            await createBooking(bookingData);
-            Alert.alert("Success", "Booking confirmed!", [
-                {
-                    text: "OK",
-                    onPress: () => navigation.navigate("MyBookings", { email }),
-                },
+            const response = await createBooking(bookingData);
+            Alert.alert("Success", "Booking confirmed 🎉", [
+                { text: "OK", onPress: () => navigation.navigate("MyBookings", { email: email.trim() }) },
             ]);
+            setName("");
+            setEmail("");
+            setArtistId(null);
         } catch (error: any) {
-            console.error("Booking error:", error.response?.data || error.message);
-            Alert.alert("Error", "Failed to create booking. Check console for details.");
+            console.error("❌ Booking error:", error.response?.data || error.message);
+            Alert.alert("Error", error.response?.data?.message || "Failed to create booking");
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                <Text style={styles.backText}>← Back</Text>
-            </TouchableOpacity>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Text style={styles.backBtn}>← Back</Text>
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Complete Reservation</Text>
+            </View>
 
-            <Text style={styles.title}>Book Tickets</Text>
+            <View style={styles.eventCard}>
+                <View style={styles.eventIconBg}>
+                    <Text style={styles.eventIcon}>🎵</Text>
+                </View>
+                <View style={styles.eventInfo}>
+                    <Text style={styles.eventName}>{eventData.name}</Text>
+                    <View style={styles.eventMeta}>
+                        <Text style={styles.eventMetaText}>📅 {eventData.date}</Text>
+                    </View>
+                    <View style={styles.eventMeta}>
+                        <Text style={styles.eventMetaText}>📍 {eventData.location}</Text>
+                    </View>
+                </View>
+            </View>
 
-            <View style={styles.form}>
-                <Text style={styles.label}>Email</Text>
-                <TextInput
-                    style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#aaa"
-                    keyboardType="email-address"
-                />
-
-                <Text style={styles.label}>Number of Seats</Text>
-                <View style={styles.seatsContainer}>
-                    {["1", "2", "3", "4", "5"].map((n) => (
-                        <TouchableOpacity
-                            key={n}
-                            style={[styles.seatBtn, seats === n && styles.seatActive]}
-                            onPress={() => setSeats(n)}
-                        >
-                            <Text style={styles.seatText}>{n}</Text>
-                        </TouchableOpacity>
-                    ))}
+            <View style={styles.formSection}>
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Full Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={name}
+                        onChangeText={setName}
+                        placeholder="e.g. Karim Bennani"
+                        placeholderTextColor="#888"
+                    />
                 </View>
 
-                <Text style={styles.total}>Total Price: ${(parseInt(seats) * 50).toFixed(2)}</Text>
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Email Address</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="name@example.com"
+                        placeholderTextColor="#888"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                    />
+                    <Text style={styles.helperText}>You'll need this for your ticket</Text>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                    <Text style={styles.label}>Select Artist</Text>
+                    <View style={styles.artistGrid}>
+                        {Array.from({ length: 9 }, (_, i) => i + 1).map((id) => (
+                            <TouchableOpacity
+                                key={id}
+                                style={[styles.artistBtn, artistId === id && styles.artistBtnActive]}
+                                onPress={() => setArtistId(id)}
+                            >
+                                <Text style={[styles.artistBtnText, artistId === id && styles.artistBtnTextActive]}>
+                                    {id}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                <View style={styles.priceCard}>
+                    <View style={styles.priceRow}>
+                        <Text style={styles.priceLabel}>Ticket Price</Text>
+                        <Text style={styles.priceValue}>{eventData.price} MAD</Text>
+                    </View>
+                    <View style={styles.priceDivider} />
+                    <View style={styles.priceRow}>
+                        <Text style={styles.totalLabel}>Total Amount</Text>
+                        <Text style={styles.totalPrice}>{eventData.price} MAD</Text>
+                    </View>
+                </View>
 
                 <TouchableOpacity
-                    style={[styles.bookBtn, isLoading && styles.disabledBtn]}
+                    style={[styles.confirmBtn, isLoading && styles.confirmBtnDisabled]}
                     onPress={handleBooking}
                     disabled={isLoading}
+                    activeOpacity={0.8}
                 >
-                    <Text style={styles.bookBtnText}>{isLoading ? "Processing..." : "Confirm Booking"}</Text>
+                    <Text style={styles.confirmBtnText}>
+                        {isLoading ? "Processing..." : `Confirm Booking  ·  ${eventData.price} MAD`}
+                    </Text>
                 </TouchableOpacity>
+
+                <Text style={styles.terms}>
+                    By completing this reservation, you agree to our terms and conditions
+                </Text>
             </View>
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#1a1a2e", padding: 20 },
-    backBtn: { marginBottom: 10 },
-    backText: { color: "#fff", fontSize: 16 },
-    title: { fontSize: 24, fontWeight: "bold", color: "#fff", marginBottom: 20 },
-    form: {},
-    label: { color: "#fff", marginBottom: 5, fontWeight: "600" },
-    input: { backgroundColor: "#2a2a3e", color: "#fff", borderRadius: 10, padding: 12, marginBottom: 20 },
-    seatsContainer: { flexDirection: "row", gap: 10, marginBottom: 20 },
-    seatBtn: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: "#2a2a3e", alignItems: "center" },
-    seatActive: { backgroundColor: "#7c3aed" },
-    seatText: { color: "#fff", fontWeight: "bold" },
-    total: { color: "#fff", fontSize: 18, fontWeight: "bold", marginBottom: 20 },
-    bookBtn: { backgroundColor: "#7c3aed", padding: 14, borderRadius: 10, alignItems: "center" },
-    disabledBtn: { opacity: 0.6 },
-    bookBtnText: { color: "#fff", fontWeight: "bold" },
+    container: {
+        flex: 1,
+        backgroundColor: "#1a1a2e",
+    },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        marginTop: 10,
+    },
+    backBtn: {
+        color: "#999",
+        fontSize: 14,
+        fontWeight: "500",
+    },
+    headerTitle: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#fff",
+        marginLeft: 20,
+    },
+
+    eventCard: {
+        flexDirection: "row",
+        backgroundColor: "#2a2a3e",
+        marginHorizontal: 20,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 30,
+        alignItems: "center",
+        gap: 12,
+    },
+    eventIconBg: {
+        width: 60,
+        height: 60,
+        backgroundColor: "#7c3aed",
+        borderRadius: 12,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    eventIcon: {
+        fontSize: 32,
+    },
+    eventInfo: {
+        flex: 1,
+    },
+    eventName: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#fff",
+        marginBottom: 6,
+    },
+    eventMeta: {
+        marginBottom: 4,
+    },
+    eventMetaText: {
+        fontSize: 12,
+        color: "#aaa",
+    },
+
+    formSection: {
+        paddingHorizontal: 20,
+        paddingBottom: 40,
+    },
+    inputWrapper: {
+        marginBottom: 24,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#fff",
+        marginBottom: 10,
+    },
+    input: {
+        backgroundColor: "#2a2a3e",
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        color: "#fff",
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: "#444",
+    },
+    helperText: {
+        fontSize: 12,
+        color: "#888",
+        marginTop: 6,
+    },
+
+    artistGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+    },
+    artistBtn: {
+        width: "23%",
+        paddingVertical: 12,
+        backgroundColor: "#2a2a3e",
+        borderRadius: 10,
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#444",
+    },
+    artistBtnActive: {
+        backgroundColor: "#7c3aed",
+        borderColor: "#7c3aed",
+    },
+    artistBtnText: {
+        color: "#aaa",
+        fontWeight: "600",
+        fontSize: 16,
+    },
+    artistBtnTextActive: {
+        color: "#fff",
+    },
+
+    priceCard: {
+        backgroundColor: "#2a2a3e",
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: "#444",
+    },
+    priceRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    priceLabel: {
+        fontSize: 14,
+        color: "#aaa",
+    },
+    priceValue: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#fff",
+    },
+    priceDivider: {
+        height: 1,
+        backgroundColor: "#444",
+        marginVertical: 12,
+    },
+    totalLabel: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#fff",
+    },
+    totalPrice: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#7c3aed",
+    },
+
+    confirmBtn: {
+        backgroundColor: "#7c3aed",
+        borderRadius: 12,
+        paddingVertical: 16,
+        alignItems: "center",
+        marginBottom: 16,
+        elevation: 4,
+    },
+    confirmBtnDisabled: {
+        opacity: 0.6,
+    },
+    confirmBtnText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+
+    terms: {
+        fontSize: 12,
+        color: "#777",
+        textAlign: "center",
+        lineHeight: 18,
+    },
 });

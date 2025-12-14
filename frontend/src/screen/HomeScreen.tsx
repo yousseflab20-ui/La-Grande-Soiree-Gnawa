@@ -54,7 +54,7 @@ export default function HomeScreen({ navigation }: any) {
 
       <TouchableOpacity
         style={styles.secondaryCTA}
-        onPress={createBooking}
+        onPress={() => navigation.navigate("MyBookings")}
         activeOpacity={0.8}
       >
         <Text style={styles.secondaryCTAText}>Mes réservations</Text>

@@ -70,7 +70,7 @@ export default function ArtistDetailScreen({ route, navigation }: any) {
 
                 <TouchableOpacity style={styles.bookButton} onPress={() =>
                     navigation.navigate("Booking", {
-                        eventId: 1, // ⚠️ مؤقت، بدلو بالـ event الحقيقي
+                        eventId: 1,
                     })
                 }>
                     <Text style={styles.bookButtonText}>Book Tickets</Text>
