@@ -1,34 +1,44 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AppNavigator from './src/navigation/AppNavigator'
+import { NavigationContainer } from "@react-navigation/native"
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View, Text } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+const queryClient = new QueryClient();
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Text>Hello world</Text>
-    </SafeAreaProvider>
-  );
+const Stack = createNativeStackNavigator();
+
+const linking = {
+    prefixes: ["frontend://", " http://localhost:4000"],
+    config: {
+        screens: {
+            Home: "home",
+            Artists: "artists",
+            ArtistDetail: "artist/:artistId",
+            Booking: "booking/:artistId",
+            MyBookings: "mybookings/:email",
+        },
+    },
+};
+export default function App() {
+
+    useEffect(() => {
+        const testStorage = async () => {
+            await AsyncStorage.setItem("testKey", "hello AsyncStorage");
+            const value = await AsyncStorage.getItem("testKey");
+            console.log("Value from AsyncStorage:", value);
+        };
+
+        testStorage();
+    }, []);
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <NavigationContainer linking={linking}>
+                <AppNavigator />
+            </NavigationContainer>
+        </QueryClientProvider>
+    );
 }
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;

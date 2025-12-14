@@ -5,6 +5,27 @@ function makeCode() {
     return "AGD" + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+export const getAllBookings = async (req, res) => {
+    try {
+        console.log("📋 Fetching all bookings...");
+        
+        const bookings = await booking.findAll({
+            include: {
+                model: artist,
+                attributes: ['id', 'name', 'photo', 'description']
+            },
+            order: [['createdAt', 'DESC']]
+        });
+
+        console.log(`✅ Found ${bookings.length} bookings`);
+        
+        res.status(200).json(bookings);
+    } catch (err) {
+        console.error("❌ Sequelize Error:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+};
+
 export const getBookingByCode = async (req, res) => {
     try {
         const Booking = await booking.findOne({
@@ -21,7 +42,7 @@ export const getBookingByCode = async (req, res) => {
 
         res.json(Booking);
     } catch (err) {
-        console.error("Sequelize Error:", err);
+        console.error("❌ Sequelize Error:", err.message);
         res.status(500).json({ error: "server error" });
     }
 };
@@ -39,7 +60,7 @@ export const getBookingsByEmail = async (req, res) => {
 
         res.json(Bookings);
     } catch (err) {
-        console.error("Sequelize Error:", err);
+        console.error("❌ Sequelize Error:", err.message);
         res.status(500).json({ error: "server error" });
     }
 };
@@ -48,7 +69,7 @@ export const createBooking = async (req, res) => {
     try {
         const { customer_name, customer_email, artist_id } = req.body;
 
-        console.log("REQ.BODY:", req.body);
+        console.log("📝 REQ.BODY:", req.body);
 
         if (!customer_name || !customer_email || !artist_id) {
             return res.status(400).json({ error: "Missing fields" });
@@ -83,9 +104,11 @@ export const createBooking = async (req, res) => {
             }
         });
 
+        console.log("✅ Booking created:", bookingWithArtist.id);
+
         res.status(201).json(bookingWithArtist);
     } catch (err) {
-        console.error("Sequelize Error:", err);
+        console.error("❌ Sequelize Error:", err.message);
         res.status(500).json({ error: err.message });
     }
 };
