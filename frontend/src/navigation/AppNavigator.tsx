@@ -9,6 +9,8 @@ import MyBookingsScreen from "../screen/MyBookingsScreen";
 
 const Stack = createNativeStackNavigator();
 
+
+
 export default function AppNavigator() {
     return (
         <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
