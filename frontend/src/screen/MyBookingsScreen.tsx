@@ -6,6 +6,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
+    ScrollView,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllBookings, fetchArtists } from "../service/api";
@@ -13,10 +14,17 @@ import { fetchAllBookings, fetchArtists } from "../service/api";
 interface Booking {
     id?: number;
     code?: string;
-    artist_id: number;
-    customer_email: string;
-    customer_name?: string;
-    created_at?: string;
+    artistId?: number;
+    artist_id?: number; // Support both formats
+    customerEmail?: string;
+    customer_email?: string; // Support both formats
+    customerName?: string;
+    customer_name?: string; // Support both formats
+    createdAt?: string;
+    created_at?: string; // Support both formats
+    name?: string;
+    description?: string;
+    photo?: string;
 }
 
 interface Artist {
@@ -26,26 +34,42 @@ interface Artist {
 }
 
 export default function MyBookings({ navigation }: any) {
-    const { data: bookings, isLoading, error, refetch } = useQuery({
+    const { data: bookingsResponse, isLoading, error, refetch } = useQuery({
         queryKey: ["allBookings"],
         queryFn: fetchAllBookings,
     });
 
-    const { data: artists } = useQuery({
+    const { data: artistsResponse } = useQuery({
         queryKey: ["artists"],
         queryFn: fetchArtists,
     });
 
-    const getArtistName = (artistId: number) => {
-        if (!artists) return `Artist #${artistId}`;
-        const artist = artists.find((a: Artist) => a.id === artistId);
-        return artist ? artist.name : `Artist #${artistId}`;
+    // Handle different response structures
+    const bookings = Array.isArray(bookingsResponse)
+        ? bookingsResponse
+        : bookingsResponse?.data ?? [];
+
+    const artists: Artist[] = artistsResponse?.data ?? [];
+
+    // Debug: Log the data
+    React.useEffect(() => {
+        console.log("Raw bookings response:", bookingsResponse);
+        console.log("Processed bookings:", bookings);
+        console.log("Artists data:", artists);
+        if (bookings && bookings.length > 0) {
+            console.log("First booking:", bookings[0]);
+        }
+    }, [bookingsResponse, bookings, artists]);
+
+    const getArtistName = (artistId?: number) => {
+        if (!artistId) return "Unknown Artist";
+        const artist = artists.find(a => a.id === artistId);
+        return artist?.name ?? `Artist #${artistId}`;
     };
 
-    const getArtistGenre = (artistId: number) => {
-        if (!artists) return "Music";
-        const artist = artists.find((a: Artist) => a.id === artistId);
-        return artist?.genre || "Music";
+    const getArtistGenre = (artistId?: number) => {
+        const artist = artists.find(a => a.id === artistId);
+        return artist?.genre ?? "Music";
     };
 
     const formatDate = (dateString?: string) => {
@@ -62,9 +86,25 @@ export default function MyBookings({ navigation }: any) {
         }
     };
 
+    // Helper function to get value supporting both camelCase and snake_case
+    const getBookingValue = (item: Booking, camelKey: string, snakeKey: string) => {
+        return (item as any)[camelKey] || (item as any)[snakeKey];
+    };
+
+    // Debug booking codes
+    React.useEffect(() => {
+        if (bookings && bookings.length > 0) {
+            console.log("🎫 Checking booking codes:");
+            bookings.forEach((booking: any, index: number) => {
+                console.log(`  [${index}] code:`, booking.code);
+                console.log(`  [${index}] all keys:`, Object.keys(booking));
+            });
+        }
+    }, [bookings]);
+
     if (isLoading) {
         return (
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation?.goBack()}>
                         <Text style={styles.backBtn}>← Back</Text>
@@ -74,13 +114,13 @@ export default function MyBookings({ navigation }: any) {
                 <View style={styles.centerContent}>
                     <Text style={styles.loadingText}>Loading bookings...</Text>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     if (error) {
         return (
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation?.goBack()}>
                         <Text style={styles.backBtn}>← Back</Text>
@@ -97,13 +137,13 @@ export default function MyBookings({ navigation }: any) {
                         <Text style={styles.retryBtnText}>Retry</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     if (!bookings || bookings.length === 0) {
         return (
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation?.goBack()}>
                         <Text style={styles.backBtn}>← Back</Text>
@@ -117,12 +157,12 @@ export default function MyBookings({ navigation }: any) {
                         No reservations have been made
                     </Text>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation?.goBack()}>
                     <Text style={styles.backBtn}>← Back</Text>
@@ -139,73 +179,80 @@ export default function MyBookings({ navigation }: any) {
                     item.id?.toString() || item.code || index.toString()
                 }
                 contentContainerStyle={styles.list}
-                scrollEnabled={true}
-                onEndReachedThreshold={0.1}
-                renderItem={({ item }) => (
-                    <View style={styles.bookingCard}>
-                        <View style={styles.cardHeader}>
-                            <View style={styles.headerLeft}>
-                                <Text style={styles.artistName}>
-                                    {getArtistName(item.artist_id)}
-                                </Text>
-                                <Text style={styles.genre}>
-                                    {getArtistGenre(item.artist_id)}
-                                </Text>
-                                {item.created_at && (
-                                    <Text style={styles.dateText}>
-                                        📅 {formatDate(item.created_at)}
+                renderItem={({ item }) => {
+                    const artistId = getBookingValue(item, 'artistId', 'artist_id');
+                    const customerName = getBookingValue(item, 'customerName', 'customer_name');
+                    const customerEmail = getBookingValue(item, 'customerEmail', 'customer_email');
+                    const createdAt = getBookingValue(item, 'createdAt', 'created_at');
+
+                    return (
+                        <View style={styles.bookingCard}>
+                            <View style={styles.cardHeader}>
+                                <View style={styles.headerLeft}>
+                                    <Text style={styles.artistName}>
+                                        {item.name || getArtistName(artistId)}
                                     </Text>
-                                )}
-                            </View>
-                            <View style={styles.statusBadge}>
-                                <Text style={styles.statusText}>✓ Confirmed</Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.divider} />
-
-                        <View style={styles.cardContent}>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.infoLabel}>Customer Name</Text>
-                                <Text style={styles.infoValue}>
-                                    {item.customer_name || "Guest"}
-                                </Text>
+                                    <Text style={styles.genre}>
+                                        {getArtistGenre(artistId)}
+                                    </Text>
+                                    {createdAt && (
+                                        <Text style={styles.dateText}>
+                                            📅 {formatDate(createdAt)}
+                                        </Text>
+                                    )}
+                                </View>
+                                <View style={styles.statusBadge}>
+                                    <Text style={styles.statusText}>✓ Confirmed</Text>
+                                </View>
                             </View>
 
-                            <View style={styles.infoRow}>
-                                <Text style={styles.infoLabel}>Email</Text>
-                                <Text style={styles.infoValue} numberOfLines={1}>
-                                    {item.customer_email}
-                                </Text>
-                            </View>
+                            <View style={styles.divider} />
 
-                            {item.code && (
+                            <View style={styles.cardContent}>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.infoLabel}>Customer Name</Text>
+                                    <Text style={styles.infoValue}>
+                                        {customerName || "Guest"}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.infoLabel}>Email</Text>
+                                    <Text style={styles.infoValue} numberOfLines={1}>
+                                        {customerEmail || "N/A"}
+                                    </Text>
+                                </View>
+
                                 <View style={styles.infoRow}>
                                     <Text style={styles.infoLabel}>Booking Code</Text>
-                                    <Text style={styles.bookingCode}>{item.code}</Text>
+                                    <Text style={styles.bookingCode}>
+                                        {item.code || (item.id ? `BK${String(item.id).padStart(6, '0')}` : "PENDING")}
+                                    </Text>
                                 </View>
-                            )}
 
-                            <View style={styles.infoRow}>
-                                <Text style={styles.infoLabel}>Artist ID</Text>
-                                <Text style={styles.infoValue}>#{item.artist_id}</Text>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.infoLabel}>Artist ID</Text>
+                                    <Text style={styles.infoValue}>
+                                        {artistId ? `#${artistId}` : "N/A"}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.cardActions}>
+                                <TouchableOpacity style={styles.actionBtn}>
+                                    <Text style={styles.actionBtnText}>🎫 View Ticket</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.actionBtn, styles.actionBtnSecondary]}
+                                >
+                                    <Text style={styles.actionBtnTextSecondary}>⋮ More</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
-
-                        <View style={styles.cardActions}>
-                            <TouchableOpacity style={styles.actionBtn}>
-                                <Text style={styles.actionBtnText}>🎫 View Ticket</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.actionBtn, styles.actionBtnSecondary]}
-                            >
-                                <Text style={styles.actionBtnTextSecondary}>⋮ More</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
+                    )
+                }}
             />
-        </SafeAreaView>
+        </View>
     );
 }
 
