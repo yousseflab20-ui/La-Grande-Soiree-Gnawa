@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -9,12 +9,26 @@ import {
     Alert,
 } from "react-native";
 import { createBooking } from "../service/api";
+import { storeData, getData } from "../service/storage";
+
 
 export default function BookingScreen({ navigation, route }: any) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [artistId, setArtistId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const savedEmail = await getData("userEmail");
+            const savedArtistId = await getData("lastArtistId");
+
+            if (savedEmail) setEmail(savedEmail);
+            if (savedArtistId) setArtistId(parseInt(savedArtistId));
+        };
+
+        loadData();
+    }, []);
 
     const eventData = route?.params?.event || {
         name: "La Grande Soirée Gnawa",
@@ -31,7 +45,8 @@ export default function BookingScreen({ navigation, route }: any) {
     const handleBooking = async () => {
         if (!name.trim()) return Alert.alert("Error", "Please enter your full name");
         if (!email.trim()) return Alert.alert("Error", "Please enter your email");
-        if (!validateEmail(email.trim())) return Alert.alert("Error", "Please enter a valid email");
+        if (!validateEmail(email.trim()))
+            return Alert.alert("Error", "Please enter a valid email");
         if (!artistId) return Alert.alert("Error", "Please select an artist");
 
         const bookingData = {
@@ -40,24 +55,35 @@ export default function BookingScreen({ navigation, route }: any) {
             artist_id: artistId,
         };
 
-        console.log("📤 Sending booking:", bookingData);
-
         setIsLoading(true);
         try {
-            const response = await createBooking(bookingData);
+            await createBooking(bookingData);
+
+            await storeData("userEmail", email.trim());
+            await storeData("lastArtistId", artistId.toString());
+
             Alert.alert("Success", "Booking confirmed 🎉", [
-                { text: "OK", onPress: () => navigation.navigate("MyBookings", { email: email.trim() }) },
+                {
+                    text: "OK",
+                    onPress: () =>
+                        navigation.navigate("MyBookings", {
+                            email: email.trim(),
+                        }),
+                },
             ]);
+
             setName("");
-            setEmail("");
             setArtistId(null);
         } catch (error: any) {
-            console.error("❌ Booking error:", error.response?.data || error.message);
-            Alert.alert("Error", error.response?.data?.message || "Failed to create booking");
+            Alert.alert(
+                "Error",
+                error.response?.data?.message || "Failed to create booking"
+            );
         } finally {
             setIsLoading(false);
         }
     };
+
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -74,12 +100,8 @@ export default function BookingScreen({ navigation, route }: any) {
                 </View>
                 <View style={styles.eventInfo}>
                     <Text style={styles.eventName}>{eventData.name}</Text>
-                    <View style={styles.eventMeta}>
-                        <Text style={styles.eventMetaText}>📅 {eventData.date}</Text>
-                    </View>
-                    <View style={styles.eventMeta}>
-                        <Text style={styles.eventMetaText}>📍 {eventData.location}</Text>
-                    </View>
+                    <Text style={styles.eventMetaText}>📅 {eventData.date}</Text>
+                    <Text style={styles.eventMetaText}>📍 {eventData.location}</Text>
                 </View>
             </View>
 
@@ -159,183 +181,35 @@ export default function BookingScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#1a1a2e",
-    },
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-        marginTop: 10,
-    },
-    backBtn: {
-        color: "#999",
-        fontSize: 14,
-        fontWeight: "500",
-    },
-    headerTitle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#fff",
-        marginLeft: 20,
-    },
-
-    eventCard: {
-        flexDirection: "row",
-        backgroundColor: "#2a2a3e",
-        marginHorizontal: 20,
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 30,
-        alignItems: "center",
-        gap: 12,
-    },
-    eventIconBg: {
-        width: 60,
-        height: 60,
-        backgroundColor: "#7c3aed",
-        borderRadius: 12,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    eventIcon: {
-        fontSize: 32,
-    },
-    eventInfo: {
-        flex: 1,
-    },
-    eventName: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: "#fff",
-        marginBottom: 6,
-    },
-    eventMeta: {
-        marginBottom: 4,
-    },
-    eventMetaText: {
-        fontSize: 12,
-        color: "#aaa",
-    },
-
-    formSection: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
-    },
-    inputWrapper: {
-        marginBottom: 24,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#fff",
-        marginBottom: 10,
-    },
-    input: {
-        backgroundColor: "#2a2a3e",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        color: "#fff",
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: "#444",
-    },
-    helperText: {
-        fontSize: 12,
-        color: "#888",
-        marginTop: 6,
-    },
-
-    artistGrid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 8,
-    },
-    artistBtn: {
-        width: "23%",
-        paddingVertical: 12,
-        backgroundColor: "#2a2a3e",
-        borderRadius: 10,
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#444",
-    },
-    artistBtnActive: {
-        backgroundColor: "#7c3aed",
-        borderColor: "#7c3aed",
-    },
-    artistBtnText: {
-        color: "#aaa",
-        fontWeight: "600",
-        fontSize: 16,
-    },
-    artistBtnTextActive: {
-        color: "#fff",
-    },
-
-    priceCard: {
-        backgroundColor: "#2a2a3e",
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 24,
-        borderWidth: 1,
-        borderColor: "#444",
-    },
-    priceRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
-    priceLabel: {
-        fontSize: 14,
-        color: "#aaa",
-    },
-    priceValue: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#fff",
-    },
-    priceDivider: {
-        height: 1,
-        backgroundColor: "#444",
-        marginVertical: 12,
-    },
-    totalLabel: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#fff",
-    },
-    totalPrice: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#7c3aed",
-    },
-
-    confirmBtn: {
-        backgroundColor: "#7c3aed",
-        borderRadius: 12,
-        paddingVertical: 16,
-        alignItems: "center",
-        marginBottom: 16,
-        elevation: 4,
-    },
-    confirmBtnDisabled: {
-        opacity: 0.6,
-    },
-    confirmBtnText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "700",
-    },
-
-    terms: {
-        fontSize: 12,
-        color: "#777",
-        textAlign: "center",
-        lineHeight: 18,
-    },
+    container: { flex: 1, backgroundColor: "#1a1a2e" },
+    header: { flexDirection: "row", alignItems: "center", padding: 16, marginTop: 10 },
+    backBtn: { color: "#999", fontSize: 14, fontWeight: "500" },
+    headerTitle: { flex: 1, fontSize: 18, fontWeight: "600", color: "#fff", marginLeft: 20 },
+    eventCard: { flexDirection: "row", backgroundColor: "#2a2a3e", marginHorizontal: 20, borderRadius: 16, padding: 16, marginBottom: 30, alignItems: "center", gap: 12 },
+    eventIconBg: { width: 60, height: 60, backgroundColor: "#7c3aed", borderRadius: 12, justifyContent: "center", alignItems: "center" },
+    eventIcon: { fontSize: 32 },
+    eventInfo: { flex: 1 },
+    eventName: { fontSize: 16, fontWeight: "700", color: "#fff", marginBottom: 6 },
+    eventMetaText: { fontSize: 12, color: "#aaa" },
+    formSection: { paddingHorizontal: 20, paddingBottom: 40 },
+    inputWrapper: { marginBottom: 24 },
+    label: { fontSize: 14, fontWeight: "600", color: "#fff", marginBottom: 10 },
+    input: { backgroundColor: "#2a2a3e", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, color: "#fff", fontSize: 16, borderWidth: 1, borderColor: "#444" },
+    helperText: { fontSize: 12, color: "#888", marginTop: 6 },
+    artistGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+    artistBtn: { width: "23%", paddingVertical: 12, backgroundColor: "#2a2a3e", borderRadius: 10, alignItems: "center", borderWidth: 1, borderColor: "#444" },
+    artistBtnActive: { backgroundColor: "#7c3aed", borderColor: "#7c3aed" },
+    artistBtnText: { color: "#aaa", fontWeight: "600", fontSize: 16 },
+    artistBtnTextActive: { color: "#fff" },
+    priceCard: { backgroundColor: "#2a2a3e", borderRadius: 12, padding: 16, marginBottom: 24, borderWidth: 1, borderColor: "#444" },
+    priceRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    priceLabel: { fontSize: 14, color: "#aaa" },
+    priceValue: { fontSize: 14, fontWeight: "600", color: "#fff" },
+    priceDivider: { height: 1, backgroundColor: "#444", marginVertical: 12 },
+    totalLabel: { fontSize: 14, fontWeight: "600", color: "#fff" },
+    totalPrice: { fontSize: 18, fontWeight: "700", color: "#7c3aed" },
+    confirmBtn: { backgroundColor: "#7c3aed", borderRadius: 12, paddingVertical: 16, alignItems: "center", marginBottom: 16, elevation: 4 },
+    confirmBtnDisabled: { opacity: 0.6 },
+    confirmBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+    terms: { fontSize: 12, color: "#777", textAlign: "center", lineHeight: 18 },
 });
