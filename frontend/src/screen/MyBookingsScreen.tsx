@@ -8,7 +8,7 @@ import {
     SafeAreaView,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { fetchBookingsByEmail, fetchArtists } from "../service/api";
+import { fetchAllBookings, fetchArtists } from "../service/api";
 
 interface Booking {
     id?: number;
@@ -16,6 +16,7 @@ interface Booking {
     artist_id: number;
     customer_email: string;
     customer_name?: string;
+    created_at?: string;
 }
 
 interface Artist {
@@ -24,13 +25,10 @@ interface Artist {
     genre?: string;
 }
 
-export default function MyBookings({ route, navigation }: any) {
-    const email: string = route?.params?.email;
-
-    const { data: bookings, isLoading, error } = useQuery({
-        queryKey: ["bookings", email],
-        queryFn: () => fetchBookingsByEmail(email),
-        enabled: !!email,
+export default function MyBookings({ navigation }: any) {
+    const { data: bookings, isLoading, error, refetch } = useQuery({
+        queryKey: ["allBookings"],
+        queryFn: fetchAllBookings,
     });
 
     const { data: artists } = useQuery({
@@ -50,11 +48,31 @@ export default function MyBookings({ route, navigation }: any) {
         return artist?.genre || "Music";
     };
 
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Unknown";
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        } catch {
+            return dateString;
+        }
+    };
+
     if (isLoading) {
         return (
             <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation?.goBack()}>
+                        <Text style={styles.backBtn}>← Back</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>All Bookings</Text>
+                </View>
                 <View style={styles.centerContent}>
-                    <Text style={styles.loadingText}>Loading your bookings...</Text>
+                    <Text style={styles.loadingText}>Loading bookings...</Text>
                 </View>
             </SafeAreaView>
         );
@@ -63,8 +81,21 @@ export default function MyBookings({ route, navigation }: any) {
     if (error) {
         return (
             <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation?.goBack()}>
+                        <Text style={styles.backBtn}>← Back</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>All Bookings</Text>
+                </View>
                 <View style={styles.centerContent}>
-                    <Text style={styles.errorText}>❌ Error loading bookings</Text>
+                    <Text style={styles.errorIcon}>⚠️</Text>
+                    <Text style={styles.errorText}>Error loading bookings</Text>
+                    <Text style={styles.errorSubtext}>
+                        {error instanceof Error ? error.message : "Unknown error"}
+                    </Text>
+                    <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
+                        <Text style={styles.retryBtnText}>Retry</Text>
+                    </TouchableOpacity>
                 </View>
             </SafeAreaView>
         );
@@ -74,12 +105,17 @@ export default function MyBookings({ route, navigation }: any) {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>My Bookings</Text>
+                    <TouchableOpacity onPress={() => navigation?.goBack()}>
+                        <Text style={styles.backBtn}>← Back</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>All Bookings</Text>
                 </View>
                 <View style={styles.centerContent}>
                     <Text style={styles.emptyIcon}>🎫</Text>
                     <Text style={styles.emptyText}>No bookings yet</Text>
-                    <Text style={styles.emptySubtext}>Book a ticket to see it here</Text>
+                    <Text style={styles.emptySubtext}>
+                        No reservations have been made
+                    </Text>
                 </View>
             </SafeAreaView>
         );
@@ -91,7 +127,10 @@ export default function MyBookings({ route, navigation }: any) {
                 <TouchableOpacity onPress={() => navigation?.goBack()}>
                     <Text style={styles.backBtn}>← Back</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Bookings</Text>
+                <Text style={styles.headerTitle}>All Bookings</Text>
+                <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{bookings.length}</Text>
+                </View>
             </View>
 
             <FlatList
@@ -101,12 +140,22 @@ export default function MyBookings({ route, navigation }: any) {
                 }
                 contentContainerStyle={styles.list}
                 scrollEnabled={true}
+                onEndReachedThreshold={0.1}
                 renderItem={({ item }) => (
                     <View style={styles.bookingCard}>
                         <View style={styles.cardHeader}>
-                            <View>
-                                <Text style={styles.artistName}>{getArtistName(item.artist_id)}</Text>
-                                <Text style={styles.genre}>{getArtistGenre(item.artist_id)}</Text>
+                            <View style={styles.headerLeft}>
+                                <Text style={styles.artistName}>
+                                    {getArtistName(item.artist_id)}
+                                </Text>
+                                <Text style={styles.genre}>
+                                    {getArtistGenre(item.artist_id)}
+                                </Text>
+                                {item.created_at && (
+                                    <Text style={styles.dateText}>
+                                        📅 {formatDate(item.created_at)}
+                                    </Text>
+                                )}
                             </View>
                             <View style={styles.statusBadge}>
                                 <Text style={styles.statusText}>✓ Confirmed</Text>
@@ -125,7 +174,9 @@ export default function MyBookings({ route, navigation }: any) {
 
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>Email</Text>
-                                <Text style={styles.infoValue}>{item.customer_email}</Text>
+                                <Text style={styles.infoValue} numberOfLines={1}>
+                                    {item.customer_email}
+                                </Text>
                             </View>
 
                             {item.code && (
@@ -145,7 +196,9 @@ export default function MyBookings({ route, navigation }: any) {
                             <TouchableOpacity style={styles.actionBtn}>
                                 <Text style={styles.actionBtnText}>🎫 View Ticket</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.actionBtn, styles.actionBtnSecondary]}>
+                            <TouchableOpacity
+                                style={[styles.actionBtn, styles.actionBtnSecondary]}
+                            >
                                 <Text style={styles.actionBtnTextSecondary}>⋮ More</Text>
                             </TouchableOpacity>
                         </View>
@@ -181,6 +234,17 @@ const styles = StyleSheet.create({
         color: "#fff",
         marginLeft: 16,
     },
+    badge: {
+        backgroundColor: "#7c3aed",
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    badgeText: {
+        color: "#fff",
+        fontWeight: "700",
+        fontSize: 12,
+    },
 
     centerContent: {
         flex: 1,
@@ -207,9 +271,31 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#888",
     },
+    errorIcon: {
+        fontSize: 48,
+        marginBottom: 12,
+    },
     errorText: {
         fontSize: 16,
         color: "#ff6b6b",
+        marginBottom: 8,
+        fontWeight: "600",
+    },
+    errorSubtext: {
+        fontSize: 12,
+        color: "#888",
+        marginBottom: 16,
+        textAlign: "center",
+    },
+    retryBtn: {
+        backgroundColor: "#7c3aed",
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    retryBtnText: {
+        color: "#fff",
+        fontWeight: "600",
     },
 
     list: {
@@ -229,10 +315,13 @@ const styles = StyleSheet.create({
     cardHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "flex-start",
         paddingHorizontal: 16,
         paddingVertical: 14,
         backgroundColor: "#1a1a2e",
+    },
+    headerLeft: {
+        flex: 1,
     },
     artistName: {
         fontSize: 16,
@@ -244,6 +333,11 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: "#7c3aed",
         fontWeight: "500",
+        marginBottom: 6,
+    },
+    dateText: {
+        fontSize: 11,
+        color: "#888",
     },
     statusBadge: {
         backgroundColor: "#1e7e34",
@@ -271,9 +365,6 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 12,
-    },
-    infoRow_last: {
-        marginBottom: 0,
     },
     infoLabel: {
         fontSize: 13,
