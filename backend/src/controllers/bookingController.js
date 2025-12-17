@@ -7,19 +7,13 @@ function makeCode() {
 
 export const getAllBookings = async (req, res) => {
     try {
-        console.log("📋 Fetching all bookings...");
-        
         const bookings = await booking.findAll({
             include: {
                 model: artist,
                 attributes: ['id', 'name', 'photo', 'description']
             },
-            order: [['createdAt', 'DESC']]
         });
-
-        console.log(`✅ Found ${bookings.length} bookings`);
-        
-        res.status(200).json(bookings);
+        res.status(200).json({ message: "artist", bookings });
     } catch (err) {
         console.error("❌ Sequelize Error:", err.message);
         res.status(500).json({ error: err.message });

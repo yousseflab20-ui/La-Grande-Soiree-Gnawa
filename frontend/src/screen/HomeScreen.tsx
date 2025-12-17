@@ -1,27 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  StatusBar,
+  Button,
+  Alert
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchEventInfo } from "../service/api";
 import { COLORS } from "../constants/Url";
-import { createBooking } from "../service/api";
 
 export default function HomeScreen({ navigation }: any) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["eventInfo"],
     queryFn: fetchEventInfo,
   });
-
   if (isLoading) return <Text style={styles.loading}>Loading...</Text>;
   if (error) return <Text style={styles.error}>Something went wrong</Text>;
-
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container}>
+      <StatusBar hidden />
       <View style={styles.hero}>
         <Text style={styles.heroTitle}>La Grande Soirée Gnawa</Text>
         <Text style={styles.heroSubtitle}>🎶 Agadir · Événement Culturel</Text>
@@ -59,6 +60,7 @@ export default function HomeScreen({ navigation }: any) {
       >
         <Text style={styles.secondaryCTAText}>Mes réservations</Text>
       </TouchableOpacity>
+
     </ScrollView>
   );
 }
@@ -172,3 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
+function setham(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+

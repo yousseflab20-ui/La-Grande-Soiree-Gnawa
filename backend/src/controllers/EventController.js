@@ -17,7 +17,7 @@ export const getEvent = async (req, res) => {
 
 export const createOrUpdateEvent = async (req, res) => {
     try {
-        const { title, description, date, location, banner_url } = req.body;
+        const { title, description, date, location } = req.body;
 
         if (!title || !description || !date || !location) {
             return res.status(400).json({
@@ -33,7 +33,6 @@ export const createOrUpdateEvent = async (req, res) => {
                 description,
                 date,
                 location,
-                banner_url: banner_url || event.banner_url
             });
         } else {
             event = await eventRoute.create({
@@ -41,7 +40,6 @@ export const createOrUpdateEvent = async (req, res) => {
                 description,
                 date,
                 location,
-                banner_url
             });
         }
 

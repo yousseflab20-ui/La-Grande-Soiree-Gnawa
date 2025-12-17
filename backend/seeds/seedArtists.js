@@ -25,15 +25,15 @@ async function seedArtists() {
                 description: "One of the first prominent female Gnawa musicians, leader of Bnat Timbouktou."
             },
             {
-                name: "Asma El Hanan (alternate)",
-                photo: "https://www.thenationalnews.com/media/2019/11/04/Asmaa-Hamzoui-gimbri-music.jpg",
+                name: "Hassan el bahi",
+                photo: "https://i.pinimg.com/736x/27/18/fd/2718fdcd2e6364f2890d8ee102e8e60c.jpg",
                 description: "Moroccan Gnawa singer and musician, known for breaking gender barriers in the genre."
             },
             {
                 name: "Hassan Hakmoun",
-                photo: "https://lh3.googleusercontent.com/aida-public/AB6AXuBPlcnKtdAMTL-lxmbTWuQI5d7HUFXpFhmN3sU7FfJSyKvCdZ0c4PGy2rtJnP4LJetqM9hc85YdD8i9sKnCLKOJVSUYL52CYDA_4wd_BZeZmfF4LyG5MYfICy6a7EoYFJx2L9t2zopUnVJZgOze8Y-j2CpOoxBu5H7CkDGdk0ldpPrUd2Hbft1hnFZEDhdcYTTRHeZ35SstIu0HH-EigVwpCQCn8Ym_SQGSO2R9fp5S7Pz5wx5WOV80tDlOYHPw2myITcmRzAW_TQ or use image from turn2image10",
+                photo: "https://i.pinimg.com/736x/6a/5c/99/6a5c9980af35c1c4cfa694c0b63544b2.jpg",
                 description: "Moroccan musician specializing in Gnawa music, noted for fusion and world music collaborations."
-            },{
+            }, {
                 name: "Mahmoud Guinia",
                 photo: "https://lh3.googleusercontent.com/aida-public/AB6AXuCt-ycw_ohWqG6cbk6_p79Je1fgFjqbysuscweYb4nVxcWHkeF154fIiWRfR3FhBNK40vJ2LTvcJDW9x0suoUFJivaSGeDSv-seafAF9Gu3eoHPZNWRGxmf6vY5Mcf37bryVjYdOU_yW4VqRcLhzO5ICCKNuNYhWGbx9cUAh6PbB-F6tVaSelEcC7Lodf3qAMw6Vwd9-vcmOjLe-LF6tvujFQU0c0sCvIIW2KPMGWexKCXEJVxaf2Q80p_KaYQA89Cs6yJPncdlWQ",
                 description: "Legendary Gnawa master from Essaouira and hugely influential figure in the tradition."

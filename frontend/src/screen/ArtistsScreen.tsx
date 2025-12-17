@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, Text, Image, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { View, ScrollView, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchArtists } from "../service/api";
 

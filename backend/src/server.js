@@ -8,8 +8,6 @@ import "./models/bookings.js";
 
 import eventRoutes from "./routes/event.routes.js";
 import artistRoutes from "./routes/artist.routes.js";
-import authRoutes from "./routes/auth.routes.js"
-import adminArtistsRoutes from "./routes/adminArtists.routes.js";
 import bookingsRouter from "./routes/bookings.routes.js";
 
 const app = express();
@@ -21,8 +19,6 @@ syncDatabase();
 app.use("/api/eventinfo", eventRoutes);
 app.use("/api/artist", artistRoutes);
 app.use("/api/bookings", bookingsRouter);
-app.use("/api/auth", authRoutes);
-app.use("/api/admin/artists", adminArtistsRoutes);
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
