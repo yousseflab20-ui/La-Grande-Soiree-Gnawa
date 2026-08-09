@@ -5,7 +5,6 @@ import ArtistsScreen from "../screen/ArtistsScreen";
 import ArtistDetailScreen from "../screen/ArtistDetailScreen";
 import BookingScreen from "../screen/BookingScreen";
 import MyBookingsScreen from "../screen/MyBookingsScreen";
-
 const Stack = createNativeStackNavigator();
 
 

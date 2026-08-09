@@ -32,7 +32,7 @@ interface Artist {
 }
 
 export default function MyBookings({ navigation }: any) {
-    const { data: bookingsResponse, isLoading, error, refetch } = useQuery({
+    const { data: bookingsResponse, isLoading, error } = useQuery({
         queryKey: ["allBookings"],
         queryFn: fetchAllBookings,
     });
@@ -42,20 +42,9 @@ export default function MyBookings({ navigation }: any) {
         queryFn: fetchArtists,
     });
 
-    const bookings = Array.isArray(bookingsResponse)
-        ? bookingsResponse
-        : bookingsResponse?.data ?? [];
+    const bookings = Array.isArray(bookingsResponse) ? bookingsResponse : bookingsResponse?.data ?? [];
 
     const artists: Artist[] = artistsResponse?.data ?? [];
-
-    React.useEffect(() => {
-        console.log("Raw bookings response:", bookingsResponse);
-        console.log("Processed bookings:", bookings);
-        console.log("Artists data:", artists);
-        if (bookings && bookings.length > 0) {
-            console.log("First booking:", bookings[0]);
-        }
-    }, [bookingsResponse, bookings, artists]);
 
     const getArtistName = (artistId?: number) => {
         if (!artistId) return "Unknown Artist";
@@ -85,16 +74,6 @@ export default function MyBookings({ navigation }: any) {
     const getBookingValue = (item: Booking, camelKey: string, snakeKey: string) => {
         return (item as any)[camelKey] || (item as any)[snakeKey];
     };
-
-    React.useEffect(() => {
-        if (bookings && bookings.length > 0) {
-            console.log("🎫 Checking booking codes:");
-            bookings.forEach((booking: any, index: number) => {
-                console.log(`  [${index}] code:`, booking.code);
-                console.log(`  [${index}] all keys:`, Object.keys(booking));
-            });
-        }
-    }, [bookings]);
 
     if (isLoading) {
         return (
@@ -127,9 +106,6 @@ export default function MyBookings({ navigation }: any) {
                     <Text style={styles.errorSubtext}>
                         {error instanceof Error ? error.message : "Unknown error"}
                     </Text>
-                    <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
-                        <Text style={styles.retryBtnText}>Retry</Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -9,28 +9,15 @@ import {
     Alert,
 } from "react-native";
 import { createBooking } from "../service/api";
-import { storeData, getData } from "../service/storage";
+import { useUserStore } from "../store/BookingsStore";
 
-
-export default function BookingScreen({ navigation, route }: any) {
+export default function BookingScreen({ navigation }: any) {
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [artistId, setArtistId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        const loadData = async () => {
-            const savedEmail = await getData("userEmail");
-            const savedArtistId = await getData("lastArtistId");
+    const { email, artistId, setEmail, setArtistId } = useUserStore();
 
-            if (savedEmail) setEmail(savedEmail);
-            if (savedArtistId) setArtistId(parseInt(savedArtistId));
-        };
-
-        loadData();
-    }, []);
-
-    const eventData = route?.params?.event || {
+    const eventData = {
         name: "La Grande Soirée Gnawa",
         date: "Oct 24 - 8:00 PM",
         location: "Agadir, Marrakech",
@@ -43,11 +30,14 @@ export default function BookingScreen({ navigation, route }: any) {
     };
 
     const handleBooking = async () => {
-        if (!name.trim()) return Alert.alert("Error", "Please enter your full name");
-        if (!email.trim()) return Alert.alert("Error", "Please enter your email");
-        if (!validateEmail(email.trim()))
+        if (!name.trim())
+            return Alert.alert("Error", "Please enter your full name");
+        if (!email.trim())
+            return Alert.alert("Error", "Please enter your email");
+        if (!validateEmail(email))
             return Alert.alert("Error", "Please enter a valid email");
-        if (!artistId) return Alert.alert("Error", "Please select an artist");
+        if (!artistId)
+            return Alert.alert("Error", "Please select an artist");
 
         const bookingData = {
             customer_name: name.trim(),
@@ -59,21 +49,11 @@ export default function BookingScreen({ navigation, route }: any) {
         try {
             await createBooking(bookingData);
 
-            await storeData("userEmail", email.trim());
-            await storeData("lastArtistId", artistId.toString());
-
-            Alert.alert("Success", "Booking confirmed 🎉", [
-                {
-                    text: "OK",
-                    onPress: () =>
-                        navigation.navigate("MyBookings", {
-                            email: email.trim(),
-                        }),
-                },
-            ]);
-
+            Alert.alert("Success", "Booking confirmed 🎉", [{
+                text: "OK",
+                onPress: () => navigation.navigate("MyBookings"),
+            },]);
             setName("");
-            setArtistId(null);
         } catch (error: any) {
             Alert.alert(
                 "Error",
@@ -83,7 +63,6 @@ export default function BookingScreen({ navigation, route }: any) {
             setIsLoading(false);
         }
     };
-
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -125,11 +104,10 @@ export default function BookingScreen({ navigation, route }: any) {
                         onChangeText={setEmail}
                         placeholder="name@example.com"
                         placeholderTextColor="#888"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
                     />
-                    <Text style={styles.helperText}>You'll need this for your ticket</Text>
+                    <Text style={styles.helperText}>
+                        You'll need this for your ticket
+                    </Text>
                 </View>
 
                 <View style={styles.inputWrapper}>
@@ -138,10 +116,19 @@ export default function BookingScreen({ navigation, route }: any) {
                         {Array.from({ length: 9 }, (_, i) => i + 1).map((id) => (
                             <TouchableOpacity
                                 key={id}
-                                style={[styles.artistBtn, artistId === id && styles.artistBtnActive]}
+                                style={[
+                                    styles.artistBtn,
+                                    artistId === id && styles.artistBtnActive,
+                                ]}
                                 onPress={() => setArtistId(id)}
                             >
-                                <Text style={[styles.artistBtnText, artistId === id && styles.artistBtnTextActive]}>
+                                <Text
+                                    style={[
+                                        styles.artistBtnText,
+                                        artistId === id &&
+                                        styles.artistBtnTextActive,
+                                    ]}
+                                >
                                     {id}
                                 </Text>
                             </TouchableOpacity>
@@ -152,28 +139,38 @@ export default function BookingScreen({ navigation, route }: any) {
                 <View style={styles.priceCard}>
                     <View style={styles.priceRow}>
                         <Text style={styles.priceLabel}>Ticket Price</Text>
-                        <Text style={styles.priceValue}>{eventData.price} MAD</Text>
+                        <Text style={styles.priceValue}>
+                            {eventData.price} MAD
+                        </Text>
                     </View>
                     <View style={styles.priceDivider} />
                     <View style={styles.priceRow}>
                         <Text style={styles.totalLabel}>Total Amount</Text>
-                        <Text style={styles.totalPrice}>{eventData.price} MAD</Text>
+                        <Text style={styles.totalPrice}>
+                            {eventData.price} MAD
+                        </Text>
                     </View>
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.confirmBtn, isLoading && styles.confirmBtnDisabled]}
+                    style={[
+                        styles.confirmBtn,
+                        isLoading && styles.confirmBtnDisabled,
+                    ]}
                     onPress={handleBooking}
                     disabled={isLoading}
                     activeOpacity={0.8}
                 >
                     <Text style={styles.confirmBtnText}>
-                        {isLoading ? "Processing..." : `Confirm Booking  ·  ${eventData.price} MAD`}
+                        {isLoading
+                            ? "Processing..."
+                            : `Confirm Booking · ${eventData.price} MAD`}
                     </Text>
                 </TouchableOpacity>
 
                 <Text style={styles.terms}>
-                    By completing this reservation, you agree to our terms and conditions
+                    By completing this reservation, you agree to our terms and
+                    conditions
                 </Text>
             </View>
         </ScrollView>
