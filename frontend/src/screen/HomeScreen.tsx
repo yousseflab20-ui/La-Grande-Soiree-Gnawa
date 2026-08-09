@@ -9,7 +9,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { fetchEventInfo } from "../service/api";
 import { COLORS } from "../constants/Url";
-import { createBooking } from "../service/api";
 
 export default function HomeScreen({ navigation }: any) {
   const { data, isLoading, error } = useQuery({
