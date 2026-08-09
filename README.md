@@ -176,7 +176,7 @@ pnpm android # Pour lancer sur émulateur Android
 ## 👨‍💻 Team
 | Nom | Rôle | Liens |
 |-----|------|-------|
-| **[Your Name]** | Full Stack Developer | [GitHub](#) \| [LinkedIn](#) |
+| **Youssef Labnine** | Full Stack Developer | [GitHub](https://github.com/yousseflab20-ui) \| [LinkedIn](https://www.linkedin.com/in/youssef-labnine-313a47367/) |
 
 <!-- 16. 📄 LICENSE -->
 ## 📄 License
@@ -186,7 +186,7 @@ This project is licensed under the **ISC License**.
 ## 📞 Contact
 | Type | Lien / Email |
 |------|--------------|
-| **Email Pro** | your.email@example.com |
+| **Email Pro** | yousseflab20@gmail.com  |
 | **Bug Reports** | [Ouvrir une Issue](#) |
 
 *Pour signaler un bug, merci d'ouvrir une issue sur GitHub avec les étapes pour le reproduire.*
