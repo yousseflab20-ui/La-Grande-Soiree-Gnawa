@@ -45,6 +45,10 @@
 <br>
 *(Add 4-6 screenshots grid of the mobile application here)*
 
+
+Uploading Screen_Recording_20260815_005536_frontend.mp4…
+
+
 <!-- 5. 📋 DESCRIPTION -->
 ## 📋 Description
 **La Grande Soirée Gnawa** is a comprehensive mobile application designed to manage and promote a major Gnawa cultural event. 
