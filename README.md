@@ -42,14 +42,9 @@
 <!-- 4. 🎥 DEMO -->
 ## 🎥 Demo
 <div align="center">
-  <!-- Replace the 'src' below with the actual link GitHub gives you when the upload finishes -->
-  
-
-https://github.com/user-attachments/assets/4e78fcb8-6831-4fde-ada3-dc92af232ea9
-
-
+  <video src="https://github.com/user-attachments/assets/4e78fcb8-6831-4fde-ada3-dc92af232ea9" width="300" controls></video>
   <br/>
-  <i>Demo de l'application mobile La Grande Soirée Gnawa</i>
+  <i>📱 Demo - La Grande Soirée Gnawa App</i>
 </div>
 <!-- 5. 📋 DESCRIPTION -->
 ## 📋 Description
