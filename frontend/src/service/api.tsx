@@ -37,6 +37,8 @@ export const fetchAllBookings = async () => {
             return res.data;
         } else if (res.data?.data && Array.isArray(res.data.data)) {
             return res.data.data;
+        } else if (res.data?.bookings && Array.isArray(res.data.bookings)) {
+            return res.data.bookings;
         } else {
             console.warn("⚠️ Unexpected response format:", res.data);
             return [];
