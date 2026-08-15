@@ -43,7 +43,11 @@
 ## 🎥 Demo
 <div align="center">
   <!-- Replace the 'src' below with the actual link GitHub gives you when the upload finishes -->
-  <video src="https://github.com/user-attachments/assets/VOTRE_LIEN_VIDEO_ICI" width="280"></video>
+  
+
+https://github.com/user-attachments/assets/4e78fcb8-6831-4fde-ada3-dc92af232ea9
+
+
   <br/>
   <i>Demo de l'application mobile La Grande Soirée Gnawa</i>
 </div>
