@@ -41,14 +41,12 @@
 
 <!-- 4. 🎥 DEMO -->
 ## 🎥 Demo
-*(Add your GIF or Video link here)*
-<br>
-*(Add 4-6 screenshots grid of the mobile application here)*
-
-
-Uploading Screen_Recording_20260815_005536_frontend.mp4…
-
-
+<div align="center">
+  <!-- Replace the 'src' below with the actual link GitHub gives you when the upload finishes -->
+  <video src="https://github.com/user-attachments/assets/VOTRE_LIEN_VIDEO_ICI" width="280"></video>
+  <br/>
+  <i>Demo de l'application mobile La Grande Soirée Gnawa</i>
+</div>
 <!-- 5. 📋 DESCRIPTION -->
 ## 📋 Description
 **La Grande Soirée Gnawa** is a comprehensive mobile application designed to manage and promote a major Gnawa cultural event. 
